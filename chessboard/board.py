@@ -1,20 +1,16 @@
-
 import pygame
-
-
 
 class Board:
 
-
    def __init__(self) -> None:
-      self.width = 2000
+      self.width = 1200 # board is 800x800, with 400 extra pixels for everything else
       self.height = 800
       self.screen = None
       self.timer = None
       self.font = None
       self.fps = 60
 
-      self.board1 = [
+      self.board = [
          ['br', 'bk', 'bb', 'bq', 'bk', 'bb', 'bk', 'br'],
          ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
          ['', '', '', '', '', '', '', ''],
@@ -23,16 +19,6 @@ class Board:
          ['', '', '', '', '', '', '', ''],
          ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
          ['wr', 'wk', 'wb', 'wq', 'wk', 'wb', 'wk', 'wr']
-      ]
-      self.board2 = [
-         ['wr', 'wk', 'wb', 'wk', 'wq', 'wb', 'wk', 'wr'],
-         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-         ['', '', '', '', '', '', '', ''],
-         ['', '', '', '', '', '', '', ''],
-         ['', '', '', '', '', '', '', ''],
-         ['', '', '', '', '', '', '', ''],
-         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-         ['br', 'bk', 'bb', 'bk', 'bq', 'bb', 'bk', 'br'],
       ]
 
       self.image_loader = {
@@ -50,38 +36,28 @@ class Board:
          'bq': './chessboard/images/Chess_qdt60.png'
       }
 
-
       self.create_window()
-
 
    def draw_board(self):
       # chessboard
       for j in range(8):
          for i in range(8):
-            color1 = 'white' if (i+j) % 2 == 0 else 'brown'
-            color2 = 'white' if (i+j+1) % 2 == 0 else 'brown'
-            pygame.draw.rect(self.screen, color1, [100 * i, 100*j, 100, 100])
-            pygame.draw.rect(self.screen, color2, [100 * i + 1200, 100*j, 100, 100])
+            color = 'white' if (i + j) % 2 == 0 else 'brown'
+            pygame.draw.rect(self.screen, color, [100 * i, 100*j, 100, 100])
 
-      # pieces
-      for j in range(8):
-         for i in range(8):
-            if self.board1[j][i]:
-               piece = self.image_loader[self.board1[j][i]]
-               load = pygame.image.load(piece).convert_alpha()
-               self.screen.blit(load, (100*i + 20, 100 * j + 20))
-            if self.board2[j][i]:
-               piece = self.image_loader[self.board2[j][i]]
-               load = pygame.image.load(piece).convert_alpha()
-               self.screen.blit(load, (100*i + 1220, 100 * j + 20))
-
+            # pieces
+            square = self.board[j][i]
+            if square:
+               image = self.image_loader[square]
+               piece = pygame.image.load(image).convert_alpha()
+               self.screen.blit(piece, (100*i + 20, 100 * j + 20))
 
    def create_window(self):
       pygame.init()
       pygame.font.init()
       self.font = pygame.font.SysFont('Arial', 30)
       self.screen = pygame.display.set_mode([self.width, self.height])
-      pygame.display.set_caption('Chess Board')
+      pygame.display.set_caption('Crazyhouse Chess Board')
       self.timer = pygame.time.Clock()
 
       run = True
