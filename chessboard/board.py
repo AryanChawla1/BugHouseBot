@@ -21,7 +21,7 @@ class Board:
          ['wr', 'wk', 'wb', 'wq', 'wk', 'wb', 'wk', 'wr']
       ]
 
-      self.image_paths = {
+      self.image_loader = {
          'wp': './chessboard/images/Chess_plt60.png',
          'bp': './chessboard/images/Chess_pdt60.png',
          'wr': './chessboard/images/Chess_rlt60.png',
@@ -36,8 +36,6 @@ class Board:
          'bq': './chessboard/images/Chess_qdt60.png'
       }
 
-      self.piece_images = {key: pygame.image.load(path).convert_alpha() for key, path in self.image_paths.items()}
-
       self.create_window()
 
    def draw_board(self):
@@ -50,7 +48,8 @@ class Board:
             # pieces
             square = self.board[j][i]
             if square:
-               piece = self.piece_images[square]
+               image = self.image_loader[square]
+               piece = pygame.image.load(image).convert_alpha()
                self.screen.blit(piece, (100*i + 20, 100 * j + 20))
 
    def create_window(self):
