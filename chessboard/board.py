@@ -1,4 +1,5 @@
 import pygame
+from .piece import Piece
 
 class Board:
 
@@ -10,24 +11,15 @@ class Board:
       self.font = None
       self.fps = 60
 
-      self.board = [
-         ['br', 'bk', 'bb', 'bq', 'bk', 'bb', 'bk', 'br'],
-         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-         ['', '', '', '', '', '', '', ''],
-         ['', '', '', '', '', '', '', ''],
-         ['', '', '', '', '', '', '', ''],
-         ['', '', '', '', '', '', '', ''],
-         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-         ['wr', 'wk', 'wb', 'wq', 'wk', 'wb', 'wk', 'wr']
-      ]
+      self.board = [['' for _ in range(8)] for _ in range(8)]
 
       self.image_loader = {
          'wp': './chessboard/images/Chess_plt60.png',
          'bp': './chessboard/images/Chess_pdt60.png',
          'wr': './chessboard/images/Chess_rlt60.png',
          'br': './chessboard/images/Chess_rdt60.png',
-         'wk': './chessboard/images/Chess_nlt60.png',
-         'bk': './chessboard/images/Chess_ndt60.png',
+         'wn': './chessboard/images/Chess_nlt60.png',
+         'bn': './chessboard/images/Chess_ndt60.png',
          'wb': './chessboard/images/Chess_blt60.png',
          'bb': './chessboard/images/Chess_bdt60.png',
          'wk': './chessboard/images/Chess_klt60.png',
@@ -36,7 +28,22 @@ class Board:
          'bq': './chessboard/images/Chess_qdt60.png'
       }
 
+
+      self.fill_board()
       self.create_window()
+
+      self.game_state = (self.board, [], [], 0, 0, '')
+
+   def fill_board(self):
+      major_pieces = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
+      for i in range(8):
+         # black pieces
+         self.board[0][i] = Piece(0, 'a' + str(i+1), major_pieces[i])
+         self.board[1][i] = Piece(0, 'a' + str(i+1), 'p')
+
+         # white pieces
+         self.board[6][i] = Piece(1, 'a' + str(i+1), 'p')
+         self.board[7][i] = Piece(1, 'a' + str(i+1), major_pieces[i])
 
    def draw_board(self):
       # chessboard
@@ -46,7 +53,7 @@ class Board:
             pygame.draw.rect(self.screen, color, [100 * i, 100*j, 100, 100])
 
             # pieces
-            square = self.board[j][i]
+            square = str(self.board[j][i])[:2]
             if square:
                image = self.image_loader[square]
                piece = pygame.image.load(image).convert_alpha()
