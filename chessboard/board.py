@@ -1,5 +1,6 @@
 import pygame
 from .piece import Piece
+from .evaluate import *
 
 class Board:
 
@@ -33,17 +34,18 @@ class Board:
       self.create_window()
 
       self.game_state = (self.board, [], [], 0, 0, '')
+      print(get_all_moves(self.game_state).keys())
 
    def fill_board(self):
       major_pieces = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
-      for i in range(8):
+      for i, j in enumerate(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
          # black pieces
-         self.board[0][i] = Piece(0, 'a' + str(i+1), major_pieces[i])
-         self.board[1][i] = Piece(0, 'a' + str(i+1), 'p')
+         self.board[0][i] = Piece(0, j + '8', major_pieces[i])
+         self.board[1][i] = Piece(0, j + '7', 'p')
 
          # white pieces
-         self.board[6][i] = Piece(1, 'a' + str(i+1), 'p')
-         self.board[7][i] = Piece(1, 'a' + str(i+1), major_pieces[i])
+         self.board[6][i] = Piece(1, j + '2', 'p')
+         self.board[7][i] = Piece(1, j + '1', major_pieces[i])
 
    def draw_board(self):
       # chessboard
