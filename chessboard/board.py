@@ -11,6 +11,8 @@ class Board:
       self.timer = None
       self.font = None
       self.fps = 60
+      self.selected = ()
+      self.turn = 1
 
       self.board = [['' for _ in range(8)] for _ in range(8)]
 
@@ -53,13 +55,46 @@ class Board:
          for i in range(8):
             color = 'white' if (i + j) % 2 == 0 else 'brown'
             pygame.draw.rect(self.screen, color, [100 * i, 100*j, 100, 100])
-
+            if self.selected and i == self.selected[0] and j == self.selected[1]:
+               pygame.draw.rect(self.screen, 'red', [100 * i, 100 * j, 100, 100])
             # pieces
             square = str(self.board[j][i])[:2]
             if square:
                image = self.image_loader[square]
                piece = pygame.image.load(image).convert_alpha()
                self.screen.blit(piece, (100*i + 20, 100 * j + 20))
+
+   def get_ownership(self, item):
+      if isinstance(item, str):
+         return None
+      return item.ownership
+
+   def handle_click(self, event):
+      x, y = event.pos[0] // 100, event.pos[1] // 100
+      # for now don't count outside board hits
+      if (x > 8 or y > 8):
+         return
+
+      selected_turn = self.get_ownership(self.board[self.selected[1]][self.selected[0]]) if self.selected else None
+      new_turn = self.get_ownership(self.board[y][x])
+
+      # selected piece is your piece
+      if selected_turn == self.turn % 2:
+         # unselect your piece
+         if self.selected == (x, y):
+            self.selected = ()
+         # click a different piece
+         elif self.selected == () or selected_turn == new_turn:
+            self.selected = (x, y)
+         # move piece
+         else:
+            self.board[y][x] = self.board[self.selected[1]][self.selected[0]]
+            self.board[self.selected[1]][self.selected[0]] = ''
+            self.selected = ()
+            self.turn += 1
+      # first click
+      else:
+         self.selected = (x,y) if new_turn == self.turn % 2 else ()
 
    def create_window(self):
       pygame.init()
@@ -78,5 +113,7 @@ class Board:
          for event in pygame.event.get():
             if event.type == pygame.QUIT:
                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+               self.handle_click(event)
          
          pygame.display.flip()
