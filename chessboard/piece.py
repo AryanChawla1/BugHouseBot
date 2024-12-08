@@ -17,3 +17,7 @@ class Piece:
    def __str__(self):
       owner_string = 'w' if self.ownership else 'b'
       return owner_string + self.piece + self.location
+
+   def __repr__(self):
+      owner_string = 'w' if self.ownership else 'b'
+      return owner_string + self.piece + self.location

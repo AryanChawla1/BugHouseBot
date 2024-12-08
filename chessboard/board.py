@@ -31,16 +31,13 @@ class Board:
          'bq': './chessboard/images/Chess_qdt60.png'
       }
 
-
       self.fill_board()
       self.create_window()
 
-      self.game_state = (self.board, [], [], 0, 0, '')
-      print(get_all_moves(self.game_state).keys())
 
    def fill_board(self):
       major_pieces = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
-      for i, j in enumerate(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
+      for i, j in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
          # black pieces
          self.board[0][i] = Piece(0, j + '8', major_pieces[i])
          self.board[1][i] = Piece(0, j + '7', 'p')
@@ -89,9 +86,15 @@ class Board:
          # move piece
          else:
             self.board[y][x] = self.board[self.selected[1]][self.selected[0]]
+            new_location = to_chess(y, x)
+            self.board[y][x].location = new_location
             self.board[self.selected[1]][self.selected[0]] = ''
             self.selected = ()
             self.turn += 1
+            latest_move = 'w' if self.turn % 2 == 0 else 'b'
+            print(self.board)
+            self.game_state = (self.board, [], [], 0, 0, latest_move)
+            print(get_all_moves(self.game_state).keys()) # this would have different functionality based on turn
       # first click
       else:
          self.selected = (x,y) if new_turn == self.turn % 2 else ()
