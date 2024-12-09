@@ -94,7 +94,13 @@ class Board:
             latest_move = 'w' if self.turn % 2 == 0 else 'b'
             print(self.board)
             self.game_state = (self.board, [], [], 0, 0, latest_move)
-            print(get_all_moves(self.game_state).keys()) # this would have different functionality based on turn
+            moves = get_all_moves(self.game_state)
+            print(moves.keys())
+            # for m in list(moves.keys()): # hardcoded stuff
+            #    if m == "18D5":
+            #       for line in moves[m][0]:
+            #          print(line)
+
       # first click
       else:
          self.selected = (x,y) if new_turn == self.turn % 2 else ()

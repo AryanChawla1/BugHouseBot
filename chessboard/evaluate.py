@@ -1,3 +1,12 @@
+##############################
+# FORMATTING NEEDS TO CHANGE #
+##############################
+
+'''
+It'll be easier to have the gamestate passed along to each of the functions because that way we can edit the variables like w_taken right from the pawn_moves function.
+When calculating which piece to take, 
+'''
+
 # evaluate game state functions
 from typing import List, Tuple
 from .piece import Piece
@@ -15,45 +24,61 @@ def to_index(notation):
     return row, col
 
 def get_all_moves(gamestate: Tuple[List[List[Piece | str]], List[str], List[str], bool, bool, str]):
+    ''' Returns dictionary of key=move_notation, val=gamestate '''
     board, w_taken, b_taken, w_castle, b_castle, latest_move = gamestate
-    all_moves = {}
+    moves = {}
     player = 1 if latest_move == '' or latest_move[0] == 'b' else 0
     for row in range(8):
         for col in range(8):
             piece = board[row][col]
             if isinstance(piece, Piece) and piece.ownership == player:
+                if piece.piece == 'p':
+                    moves.update((pawn_moves(piece, gamestate)))
+                # elif piece.piece == 'r':
+                    # moves.update((pawn_moves(piece, gamestate)))
 
-                moves = get_moves(piece, board, w_castle, b_castle)
+    return moves # dictionary with key=move_notation, val=gamestate
 
-                for move in moves:
-                    new_board = [row[:] for row in board] # deep copy
-                    new_board[move[0]][move[1]] = piece 
-                    new_board[row][col] = ''
-                    new_gamestate = (new_board, w_taken, b_taken, w_castle, b_castle, to_chess(*move))
-                    if in_check(new_board, player):
-                        continue
-                    move_notation = f"{piece.id}{to_chess(*move)}"
-                    all_moves[move_notation] = new_gamestate
+def move(start: Tuple[int], end: Tuple[int], board: Tuple[List[List[Piece | str]]]):
+    ''' move the piece, return board and captured piece, and evaluates if it is a check'''
 
-    return all_moves
+    piece = board[start[0]][start[1]]
+    player = piece.ownership
+    captured = board[end[0]][end[1]]
+    board[end[0]][end[1]] = piece
+    piece.location = to_chess(end[0], end[1])
+    board[start[0]][start[1]] = ''
+    return board, captured, in_check(board, player)
 
-def get_moves(piece: Piece, board: List[List[Piece | str]], w_castle: bool, b_castle: bool):
-    moves = []
-    
-    if piece.piece == 'p':
-        moves.extend(pawn_moves(piece, board))
 
-    return moves
 
-def pawn_moves(piece: Piece, board: List[List[Piece | str]]):
-    moves = []
+def pawn_moves(piece: Piece, gamestate: Tuple[List[List[Piece | str]], List[str], List[str], bool, bool, str]):
+    board, w_taken, b_taken, w_castle, b_castle, latest_move = gamestate
+    moves = {}
     row, col = to_index(piece.location)
     direction = -1 if piece.ownership else 1 
     start = 6 if piece.ownership else 1
     if 0 <= row + direction < 8 and not board[row + direction][col]: # up one
-        moves.append((row + direction, col))
-    if row == start and 0 <= row + (direction * 2) < 8 and not board[row +  (direction * 2)][col]: # up two
-        moves.append((row + (direction * 2), col))
+        new_board, _, checked = move((row, col), (row + direction, col), [row[:] for row in board]) # move the piece
+        if not checked:
+            moves[f"{piece.id}{to_chess(row + direction, col)}"] = (new_board, w_taken, b_taken, w_castle, b_castle, latest_move)
+        if row == start and 0 <= row + (direction * 2) < 8 and not board[row +  (direction * 2)][col]: # up two
+            new_board, _, checked = move((row, col), (row + (direction * 2), col), [row[:] for row in board])
+            if not checked:
+                moves[f"{piece.id}{to_chess(row + (direction * 2), col)}"] = (new_board, w_taken, b_taken, w_castle, b_castle, latest_move)
+
+    # capture pieces
+    for d in [-1, 1]: # left and right side
+        new_row, new_col = row + direction, col + d
+        if 0 <= new_row < 8 and 0 <= new_col < 8:
+            if board[new_row][new_col] and board[new_row][new_col].ownership != piece.ownership:
+                new_board, taken, checked = move((row, col), (new_row, new_col), [row[:] for row in board])
+                if not checked:
+                    if piece.ownership:
+                        b_taken.append(taken)
+                    else:
+                        w_taken.append(taken)
+                    moves[f"{piece.id}{to_chess(new_row, new_col)}"] = (new_board, w_taken, b_taken, w_castle, b_castle, latest_move)
 
     # en passant, promotion, capturing pieces to implement later
     
