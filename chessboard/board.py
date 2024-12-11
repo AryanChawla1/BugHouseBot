@@ -1,6 +1,7 @@
 import pygame
 from .piece import Piece
 from .evaluate import *
+from .utility import *
 
 class Board:
 
